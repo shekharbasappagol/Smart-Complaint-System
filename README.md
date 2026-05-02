@@ -26,19 +26,18 @@ A full-stack web application built to manage complaints efficiently with real-ti
 ---
 
 ## 📊 Screenshots
-## 📊 Screenshots
 
 ### Admin Dashboard
-![Admin Dashboard](screenshots/admin-dashboard.png)
+![Admin Dashboard](screenshots/Admin-DashBoard.png)
 
 ### User Dashboard
-![User Dashboard](screenshots/user-dashboard.png)
+![User Dashboard](screenshots/User-Dashboard.png)
 
 ### Complaint Management
-![Complaints](screenshots/complaints.png)
+![Complaints](screenshots/Complain-Management.png)
 
-### Analytics Dashboard
-![Charts](screenshots/charts.png)
+### OTP Verification
+![OTP](screenshots/OTP-Verification.png)
 ---
 
 ## ⚙️ Setup Instructions
