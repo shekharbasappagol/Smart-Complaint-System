@@ -25,8 +25,6 @@ A full-stack web application designed to manage complaints efficiently with real
 
 ---
 
-## 📊 Screenshots
-
 ### Admin Dashboard
 ![Admin](screenshots/admin.png)
 
