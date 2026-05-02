@@ -1,6 +1,10 @@
-# Smart Complaint & Issue Tracking System
+## 🚀 Smart Complaint & Issue Tracking System
 
-A full-stack web application built to manage complaints efficiently with real-time tracking and admin control.
+A full-stack web application to manage and track complaints efficiently with real-time updates and admin control.
+
+![Java](https://img.shields.io/badge/Java-SpringBoot-green)
+![Database](https://img.shields.io/badge/MySQL-Database-blue)
+![Frontend](https://img.shields.io/badge/Frontend-HTML/CSS/JS-orange)
 
 ---
 
@@ -69,4 +73,7 @@ A full-stack web application built to manage complaints efficiently with real-ti
 ## 👨‍💻 Author
 
 Shekhar Basappagol
+## 👨‍💻 About Me
+
+I built this project to understand real-world full-stack development, including REST APIs, database handling, and UI design.
 
