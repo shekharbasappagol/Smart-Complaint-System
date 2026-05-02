@@ -25,17 +25,6 @@ A full-stack web application designed to manage complaints efficiently with real
 
 ---
 
-### Admin Dashboard
-![Admin](screenshots/admin.png)
-
-### Complaint Dashboard
-![User](screenshots/dashboard.png)
-
-### Analytics
-![Charts](screenshots/chart.png)
-
----
-
 ## ⚙️ Setup Instructions
 
 1. Clone the repository  
