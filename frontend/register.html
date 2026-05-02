@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+    <title>Register</title>
+    <link rel="stylesheet" href="register-style.css">
+</head>
+<body>
+
+
+<div class="header">
+    Smart Complaint System
+</div>
+
+<div class="container">
+    <h2>Register</h2>
+    <p class="subtext">Create your account securely</p>
+
+    <div class="input-box">
+    <span>👤</span>
+    <input type="text" id="name" placeholder="Name">
+</div>
+    <div class="input-box">
+    <span>👤</span>
+    <input type="email" id="email" placeholder="Email">
+</div>
+
+
+    <div class="otp-section">
+    <button id="otpBtn" onclick="sendOtp()">Send OTP</button>
+</div>
+    <span id="timer" style="display:none;"></span><br>
+
+    <div class="input-box">
+    <span>🔢</span>
+    <input type="text" id="otp" placeholder="Enter OTP">
+</div>
+   <div class="input-box">
+    <span>🔐</span>
+    <input type="password" id="password" placeholder="Password">
+</div>
+
+    <select id="role">
+        <option value="USER">User</option>
+        <option value="ADMIN">Admin</option>
+    </select><br>
+
+    <button onclick="register()">Register</button>
+    
+    <p class="login-text">
+    Already have an account? 
+    <a href="login.html">Login</a>
+</p>
+
+    <!-- 🔥 Message display -->
+    <p id="msg"></p>
+</div>
+
+<script>
+
+let countdown = 30;
+let timerInterval;
+
+// 🔹 Show message UI
+function showMessage(message, color) {
+    let msg = document.getElementById("msg");
+    msg.innerText = message;
+    msg.style.color = color;
+}
+
+// 🔹 Send OTP
+function sendOtp() {
+    let email = document.getElementById("email").value;
+
+    let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if(!emailPattern.test(email)) {
+        showMessage("Enter valid email format", "red");
+        return;
+    }
+
+    fetch(`http://localhost:8080/otp/send?email=${email}`, {
+        method: "POST"
+    })
+    .then(() => {
+        showMessage("OTP sent to your email", "green");
+
+        // 🔥 Disable button
+        let btn = document.getElementById("otpBtn");
+        btn.disabled = true;
+        btn.innerText = "OTP Sent";
+
+        startTimer();
+    })
+    .catch(() => {
+        showMessage("Failed to send OTP", "red");
+    });
+}
+
+// 🔹 Timer
+function startTimer() {
+    let timer = document.getElementById("timer");
+    timer.style.display = "inline";
+
+    countdown = 30;
+
+    timerInterval = setInterval(() => {
+        timer.innerText = " Resend in " + countdown + "s";
+        countdown--;
+
+        if(countdown < 0) {
+            clearInterval(timerInterval);
+
+            timer.innerText = "";
+
+            let btn = document.getElementById("otpBtn");
+            btn.disabled = false;
+            btn.innerText = "Resend OTP";
+        }
+    }, 1000);
+}
+
+// 🔹 Register
+function register() {
+    let email = document.getElementById("email").value;
+    let otp = document.getElementById("otp").value;
+
+    if(otp === "") {
+        showMessage("Please enter OTP", "red");
+        return;
+    }
+
+    fetch(`http://localhost:8080/otp/verify?email=${email}&otp=${otp}`, {
+        method: "POST"
+    })
+    .then(res => res.json())
+    .then(valid => {
+
+        if(!valid) {
+            showMessage("Invalid or expired OTP ❌", "red");
+            return;
+        }
+
+        // 🔥 Proceed to register
+        fetch("http://localhost:8080/auth/register", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                name: document.getElementById("name").value,
+                email: email,
+                password: document.getElementById("password").value,
+                role: document.getElementById("role").value
+            })
+        })
+        .then(async res => {
+            if (!res.ok) {
+                let err = await res.text();
+                throw new Error(err);
+            }
+            return res.json();
+        })
+        .then(() => {
+            showMessage("Registered Successfully ✅", "green");
+
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1500);
+        })
+        .catch(err => {
+            showMessage(err.message, "red");
+        });
+
+    });
+}
+
+</script>
+
+</body>
+</html>

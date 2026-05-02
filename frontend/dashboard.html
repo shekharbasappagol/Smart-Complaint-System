@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<div class="header">
+    Smart Complaint System (User)
+</div>
+
+<div class="container">
+    <h2>Complaint Dashboard</h2>
+
+    <div class="form-group">
+        <input type="text" id="title" placeholder="Title">
+    </div>
+
+    <div class="form-group">
+        <textarea id="description" placeholder="Description"></textarea>
+    </div>
+
+    <div class="form-group">
+        <input type="text" id="location" placeholder="Location (e.g., Chikodi)">
+    </div>
+
+    <!-- CATEGORY -->
+    <div class="form-group">
+        <select id="category" required>
+            <option value="" disabled selected>-- Select Category --</option>
+            <option value="Technical">Technical</option>
+            <option value="Electrical">Electrical</option>
+            <option value="Water">Water</option>
+            <option value="Water">General</option>
+        </select>
+    </div>
+
+    <!-- PRIORITY -->
+    <div class="form-group">
+        <select id="priority" required>
+            <option value="" disabled selected>-- Select Priority --</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+        </select>
+    </div>
+
+    <!-- FILE -->
+    <div class="form-group file-box">
+        <input type="file" id="file">
+        <span id="fileName">No file chosen</span>
+    </div>
+
+    <div class="btn-group">
+        <button onclick="submitComplaint()">Submit</button>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <h3>Your Complaints</h3>
+    <ul id="list"></ul>
+</div>
+
+<script>
+
+// Show file name
+document.getElementById("file").addEventListener("change", function() {
+    let file = this.files[0];
+    document.getElementById("fileName").innerText = file ? file.name : "No file chosen";
+});
+
+function submitComplaint() {
+
+    let title = document.getElementById("title").value.trim();
+    let description = document.getElementById("description").value.trim();
+    let category = document.getElementById("category").value;
+    let priority = document.getElementById("priority").value;
+    let location = document.getElementById("location").value.trim();
+    let userId = localStorage.getItem("userId");
+
+    if (!title || !description || !location) {
+        alert("Please fill all required fields");
+        return;
+    }
+
+    if (!category || !priority) {
+        alert("Please select Category and Priority");
+        return;
+    }
+
+    let formData = new FormData();
+
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("category", category);
+    formData.append("priority", priority);
+    formData.append("location", location);
+    formData.append("userId", userId);
+
+    let file = document.getElementById("file").files[0];
+
+    if (file) {
+
+        if (!file.type.startsWith("image/")) {
+            alert("Only image files allowed");
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            alert("Max file size is 2MB");
+            return;
+        }
+
+        formData.append("file", file);
+    }
+
+    fetch("http://localhost:8080/complaints/upload", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(() => {
+
+        alert("Complaint submitted successfully");
+
+        document.getElementById("title").value = "";
+        document.getElementById("description").value = "";
+        document.getElementById("location").value = "";
+        document.getElementById("file").value = "";
+        document.getElementById("fileName").innerText = "No file chosen";
+
+        document.getElementById("category").selectedIndex = 0;
+        document.getElementById("priority").selectedIndex = 0;
+
+        loadComplaints();
+    });
+}
+
+function loadComplaints() {
+    let userId = localStorage.getItem("userId");
+
+    fetch(`http://localhost:8080/complaints/user/${userId}`)
+    .then(res => res.json())
+    .then(data => {
+
+        let list = document.getElementById("list");
+        list.innerHTML = "";
+
+        data.forEach(c => {
+            list.innerHTML += `
+            <li>
+                <b>${c.title}</b><br>
+                ${c.description}<br>
+
+                Category: ${c.category ?? 'N/A'}<br>
+                Priority: ${c.priority ?? 'N/A'}<br>
+                Location: ${c.location ?? 'N/A'}<br>
+
+                Status: <span>${c.status}</span><br>
+
+                ${c.imagePath ? `<img src="http://localhost:8080/${c.imagePath}" width="120"><br>` : ''}
+            </li>
+            `;
+        });
+    });
+}
+
+function logout() {
+    localStorage.clear();
+    window.location.href = "login.html";
+}
+
+loadComplaints();
+
+</script>
+
+</body>
+</html>

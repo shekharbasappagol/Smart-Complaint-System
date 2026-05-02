@@ -1,1 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Complaint System</title>
+    <link rel="stylesheet" href="index-style.css">
+</head>
+<body>
 
+<!-- 🔷 NAVBAR -->
+<div class="navbar">
+    <h2>Smart Complaint System</h2>
+    <div>
+        <button onclick="goLogin()">Login</button>
+        <button onclick="goRegister()">Register</button>
+    </div>
+</div>
+
+<!-- 🔷 HERO SECTION -->
+<div class="hero">
+    <h1>Track & Manage Complaints Easily</h1>
+    <p>A smart system for users and admins to manage issues efficiently</p>
+    <button onclick="goRegister()">Get Started</button>
+</div>
+
+<!-- 🔷 FEATURES SECTION -->
+<div class="section">
+    <h2>Features</h2>
+    <div class="cards">
+
+        <div class="card">
+            <h3>User Login</h3>
+            <p>Secure login system for users</p>
+        </div>
+
+        <div class="card">
+            <h3>Complaint Tracking</h3>
+            <p>Track complaint status in real-time</p>
+        </div>
+
+        <div class="card">
+            <h3>Admin Dashboard</h3>
+            <p>Admins can manage and resolve issues</p>
+        </div>
+
+    </div>
+</div>
+
+<!-- 🔷 ABOUT SECTION -->
+<div class="about-container">
+
+    <h2>About Project</h2>
+
+    <p class="about-text">
+        This project is a full-stack web application developed using Spring Boot and MySQL. 
+        It enables users to submit complaints, track their status in real-time, and allows 
+        administrators to manage complaints efficiently through a centralized system. 
+        The system improves transparency, reduces manual effort, and provides analytical insights.
+    </p>
+
+    <div class="project-details">
+
+        <div class="left">
+            <p><b>Developed By :</b> Shekhar Basappagol</p>
+            <p><b>College Name :</b> KLECET Chikodi</p>
+            <p><b>Department :</b> Computer Science & Engineering</p>
+        </div>
+
+        <div class="right">
+            <p><b>Guide Name :</b> G. R. Kembhavimath</p>
+            <p><b>University :</b> VTU Belagavi</p>
+             <p><b>Academic Year :</b> 2025–2026</p>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- 🔷 FOOTER -->
+<div class="footer">
+    <p>© 2026 Smart Complaint System | Developed using Spring Boot</p>
+</div>
+
+<script>
+function goLogin() {
+    window.location.href = "login.html";
+}
+function goRegister() {
+    window.location.href = "register.html";
+}
+</script>
+
+</body>
+</html>

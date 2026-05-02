@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="admin-style.css">
+   
+</head>
+<body>
+<div class="header">
+    Smart Complaint & Issue Tracking System (Admin)
+</div>
+<div class="main">
+
+    <div class="sidebar">
+        <h3>Admin Panel</h3>
+
+        <button onclick="filterStatus('ALL')">All</button>
+        <button onclick="filterStatus('Pending')">Pending</button>
+        <button onclick="filterStatus('In Progress')">In Progress</button>
+        <button onclick="filterStatus('Resolved')">Resolved</button>
+
+        <hr>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <div class="content">
+
+        <h2>Dashboard Overview</h2>
+        
+		<h2>Analytics</h2>
+
+<div style="width:300px; margin:20px auto;">
+    <canvas id="complaintChart"></canvas>
+</div>
+
+<div class="chart-card" id="barChartSection">
+    <h3>📊 Monthly Complaints</h3>
+    <canvas id="barChart"></canvas>
+</div>
+
+        <div class="stats">
+            <div class="card stat-card">
+                <h3>Total</h3>
+                <p id="total">0</p>
+            </div>
+
+            <div class="card stat-card">
+                <h3>Pending</h3>
+                <p id="pending">0</p>
+            </div>
+
+            <div class="card stat-card">
+                <h3>Resolved</h3>
+                <p id="resolved">0</p>
+            </div>
+        </div>
+
+        <input type="text" id="searchBox" placeholder="🔍 Search complaints..."
+            onkeyup="searchComplaints()" class="search-box">
+
+        <h2>Manage Complaints</h2>
+
+        <div id="list"></div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+let allComplaints = [];
+let pieChart = null;
+let barChart = null;
+
+// ================== LOAD COMPLAINTS ==================
+function loadComplaints() {
+    fetch("http://localhost:8080/complaints")
+    .then(res => res.json())
+    .then(data => {
+        allComplaints = data;
+        displayComplaints(data);
+    });
+}
+
+function loadStats() {
+    fetch("http://localhost:8080/complaints/stats")
+    .then(res => res.json())
+    .then(data => {
+
+        document.getElementById("total").innerText = data.total;
+        document.getElementById("pending").innerText = data.pending;
+        document.getElementById("resolved").innerText = data.resolved;
+
+        loadPieChart(data);
+    });
+}
+
+
+function loadPieChart(data) {
+
+    const ctx = document.getElementById("complaintChart").getContext("2d");
+
+    if (pieChart) pieChart.destroy();
+
+    pieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ["Pending", "Resolved"],
+            datasets: [{
+                data: [data.pending, data.resolved],
+                backgroundColor: ["#f39c12", "#2ecc71"]
+            }]
+        }
+    });
+}
+
+function loadBarChart(data) {
+
+    const ctx = document.getElementById("barChart").getContext("2d");
+
+    const monthNames = ["Jan","Feb","Mar","Apr","May","Jun",
+                        "Jul","Aug","Sep","Oct","Nov","Dec"];
+
+    const labels = Object.keys(data).map(m => monthNames[m - 1]);
+
+    if (barChart) barChart.destroy();
+
+    barChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Complaints",
+                data: Object.values(data),
+                backgroundColor: "#3498db",
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            animation: {
+                duration: 1500
+            }
+        }
+    });
+}
+
+function loadMonthlyStats() {
+    fetch("http://localhost:8080/complaints/monthly")
+    .then(res => res.json())
+    .then(data => {
+
+        console.log("Monthly Data:", data); // debug
+
+        if (!data || Object.keys(data).length === 0) {
+            console.log("No monthly data ❌");
+            return;
+        }
+
+        loadBarChart(data);
+    })
+    .catch(err => console.error("Monthly API error:", err));
+}
+
+function filterStatus(status) {
+    if (status === 'ALL') {
+        displayComplaints(allComplaints);
+    } else {
+        let filtered = allComplaints.filter(c => c.status === status);
+        displayComplaints(filtered);
+    }
+}
+
+
+function displayComplaints(data) {
+    let list = document.getElementById("list");
+    list.innerHTML = "";
+
+    data.forEach(c => {
+
+        let statusColor = c.status === 'Resolved' ? 'green' :
+                          c.status === 'In Progress' ? 'orange' : 'gray';
+
+        list.innerHTML += `
+        <div class="card">
+            <h3>${c.title}</h3>
+            <p>${c.description}</p>
+
+            <p>Status: <span style="color:${statusColor}">${c.status}</span></p>
+
+            <p><small>${c.createdAt ?? ''}</small></p>
+
+            <button onclick="updateStatus(${c.id}, 'In Progress')">In Progress</button>
+            <button onclick="updateStatus(${c.id}, 'Resolved')">Resolved</button>
+        </div>
+        `;
+    });
+}
+
+function updateStatus(id, status) {
+    fetch(`http://localhost:8080/complaints/${id}?status=${status}`, {
+        method: "PUT"
+    }).then(() => {
+        loadComplaints();
+        loadStats();
+        loadMonthlyStats();
+    });
+}
+
+
+function searchComplaints() {
+    let keyword = document.getElementById("searchBox").value;
+
+    fetch(`http://localhost:8080/complaints/search?keyword=${keyword}`)
+    .then(res => res.json())
+    .then(data => displayComplaints(data));
+}
+
+
+function logout() {
+    localStorage.clear();
+    window.location.href = "login.html";
+}
+
+
+loadComplaints();
+loadStats();
+loadMonthlyStats();
+
+</script>
+
+</body>
+</html>
